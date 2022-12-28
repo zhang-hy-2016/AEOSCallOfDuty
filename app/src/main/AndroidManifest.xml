@@ -5,6 +5,10 @@
     <!-- Permissions to read/write of storage-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <!-- Permission for phone call -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <!-- Permission to persist TimeWatchJob  -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -29,6 +33,12 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
+        <!-- Declares scheduleService -->
+        <service
+            android:name=".TimeWatchJob"
+            android:enabled="true"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
     </application>
 
 </manifest>

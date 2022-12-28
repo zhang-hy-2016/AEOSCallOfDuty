@@ -1,5 +1,8 @@
 package info.zha.aeos;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
@@ -32,16 +35,15 @@ public class AppUtil {
         if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
             Log.w(TAG, "Storage is not available");
             return;
-        } else {
-            Log.i(TAG, "Create new application folder under " + appFilesFolder.getAbsolutePath());
-            if (!appFilesFolder.exists() && !appFilesFolder.mkdirs()) {
-                Log.w(TAG, "Unable to create application folder at: " + appFilesFolder.getAbsolutePath());
-            }
         }
 
-        // I can put execution result at this file, this is not the Logcat content.
+        Log.d(TAG, "The path of application folder is: " + appFilesFolder.getAbsolutePath());
+        if (!appFilesFolder.exists() && !appFilesFolder.mkdirs()) {
+            Log.w(TAG, "Unable to create application folder at: " + appFilesFolder.getAbsolutePath());
+        }
+
         appLogFile = new File(appFilesFolder, "app.log");
-        Log.i(TAG, "Create new application log file under " + appLogFile.getAbsolutePath());
+        Log.d(TAG, "The path to application log file is: " + appLogFile.getAbsolutePath());
     }
 
     private static boolean isExternalStorageAvailable() {
@@ -76,5 +78,21 @@ public class AppUtil {
             Log.w(TAG, "Can't append log message",e );
         }
     }
+
+    /**
+     * Make a call of given number
+     * @param context
+     * @param number
+     */
+    public void callNumber(Context context, String number) {
+        // Getting instance of Intent with action as ACTION_CALL
+        Intent phone_intent = new Intent(Intent.ACTION_CALL);
+        // Set data of Intent through Uri by parsing phone number
+        phone_intent.setData(Uri.parse("tel:" + number));
+        Log.i(TAG, "Dial Number " +  number);
+        commitAppLog("Dial Number " +  number);
+        context.startActivity(phone_intent);
+    }
+
 
 }
