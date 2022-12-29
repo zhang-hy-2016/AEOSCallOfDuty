@@ -5,12 +5,15 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Environment;
+import android.telephony.SmsManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -216,5 +219,61 @@ public class AppUtil {
         }
         return appProperties;
     }
+
+    /**
+     * Read runtime properties from file "app_runtime.properties"
+     * Different to "application properties" which is a configuration file, the "runtime properties"
+     * will be updated during the runtime.
+     * @return an empty properties when file is not existed or it is not a valid java properties file.
+     */
+    public Properties readRuntimeProperties(){
+        File runtimeFile = new File(appFilesFolder, "app_runtime.properties");
+        Properties runtimeProperties = new Properties();
+
+        if (!runtimeFile.exists()) {
+            return new Properties();
+        }
+
+        try {
+            runtimeProperties.load(new FileInputStream(runtimeFile));
+        } catch (IOException e) {
+            Log.e(TAG, runtimeFile.getAbsolutePath() +  " is not a valid properties file");
+        }
+        return runtimeProperties;
+    }
+
+    /**
+     * Write given runtime properties into file.
+     * Be aware, this is not a thread safe method!
+     * @param runtimeProperties
+     * @return False on IOException
+     */
+    public boolean persistentRuntimeProperties(Properties runtimeProperties){
+        File runtimeFile = new File(appFilesFolder, "app_runtime.properties");
+
+        try {
+            FileOutputStream fr = new FileOutputStream(runtimeFile);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+            runtimeProperties.store(fr, "Updated at " +  simpleDateFormat.format(new Date()));
+            fr.close();
+            return  true;
+        } catch (IOException e){
+            Log.w(TAG,"Can't write into runtime properties file: " +  runtimeFile.getAbsolutePath(), e);
+            return false;
+        }
+    }
+
+
+    public void sendSMS(Context context, String phoneNo, String msg) {
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phoneNo, null, msg, null, null);
+            Toast.makeText(context, "Message Sent",
+                    Toast.LENGTH_LONG).show();
+        } catch (Exception ex) {
+            Log.w(TAG, "Can't send sms to " + phoneNo, ex);
+        }
+    }
+
 
 }

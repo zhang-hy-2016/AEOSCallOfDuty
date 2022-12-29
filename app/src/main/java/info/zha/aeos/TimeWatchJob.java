@@ -1,19 +1,13 @@
 package info.zha.aeos;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
-
-import android.content.Intent;
-import android.nfc.Tag;
-import android.os.AsyncTask;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
-import android.os.SystemClock;
-
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -41,23 +35,26 @@ public class TimeWatchJob extends JobService {
     // ths object will be updated in every onStartJob call
     private Properties appProperties;
 
+
+    static String LAST_ACTION_TS="last.action.ts";          // timestamp of last action
+    static String LAST_ACTION_PERSON="last.action.person";
+    static String LAST_ACTION_NUMBER="last.action.number";  // Call-out numbers of last action
+
+
+
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
         Log.d(TAG, "onStartJob....");
         doMyJob();
 
-        // false - job is finished
-        // true - job is still running (in a separated thread).
+        // return false to tell scheduleManager job is finished.
         return false;
     }
 
     @Override
     public boolean onStopJob(JobParameters jobParameters) {
+        // this method should be never fired.
         Log.d(TAG, "onStopJob.....");
-        AppUtil appUtil = new AppUtil();
-        appUtil.commitAppLog("TimeWatchJob: Stop the job ");
-
-        // this job
         return false;
     }
 
@@ -74,33 +71,27 @@ public class TimeWatchJob extends JobService {
         }
 
         Map<String, String> dutyPlan = appUtil.buildDutyPlan();
-        appUtil.viewDutyPlan(dutyPlan);
+        appUtil.viewDutyPlan(dutyPlan); // for debug only
 
         String manOnDuty = appUtil.getDutyPerson(dutyPlan);
         Log.i(TAG,"Find Man on duty is " +  manOnDuty);
-
         String manOnDutyPhone = appProperties.getProperty("phone."+manOnDuty);
+
         if ( manOnDuty == null || manOnDutyPhone == null ) {
             Log.w(TAG,"There is on person for  " + appUtil.getWeekIndex() +
                     " or there is no phone number for " + manOnDuty);
-            String number = appProperties.getProperty("call.forwarding.stop.vodafone");
-            Log.w(TAG,"Switch off call forwarding.");
+            Log.w(TAG,"Turn off call forwarding.");
 
             appUtil.commitAppLog("There is on person for  " + appUtil.getWeekIndex() +
                     " or there is no phone number for " + manOnDuty);
             appUtil.commitAppLog("Turn off call forwarding");
-
-            callNumber(appUtil, number);
-
+            turnOffCallForwarding(appUtil);
         } else {
             // Set call forwarding to duty person
-            String number = appProperties.getProperty("call.forwarding.auto.vodafone")
-                    .replaceAll("Zielrufnummer", manOnDutyPhone);
             Log.i(TAG,"Turn on call forwarding to " + manOnDuty + ":" + manOnDutyPhone);
             appUtil.commitAppLog("Turn on call forwarding to " + manOnDuty + ":" + manOnDutyPhone);
-            callNumber(appUtil, number);
+            turnOnCallForwarding(appUtil, manOnDuty, manOnDutyPhone);
         }
-
     }
 
     private void callNumber(AppUtil appUtil, String number) {
@@ -131,4 +122,92 @@ public class TimeWatchJob extends JobService {
         }
         return false;
     }
+
+
+    private List<String> getAEOSAdminsPhones(){
+        List<String> admins = new ArrayList<>();
+        for (String key: appProperties.stringPropertyNames()) {
+            if (key.contains("phone.")) {
+                admins.add(appProperties.getProperty(key));
+            }
+        }
+        return admins;
+    }
+
+
+    private void turnOffCallForwarding(AppUtil appUtil){
+        String number = appProperties.getProperty("call.forwarding.stop.vodafone");
+
+        Properties runtimeProperties = appUtil.readRuntimeProperties();
+        long lastActionTS = runtimeProperties.getProperty(LAST_ACTION_TS) == null?
+                0 : Long.parseLong(runtimeProperties.getProperty(LAST_ACTION_TS));
+
+        Date now = new Date();
+        long one_week = (7 * 24 * 3600 * 1000L) - (2 * 3600 * 1000L);
+
+        // avoid duplicated actions in same week
+        if ((now.getTime() - lastActionTS) > one_week) {
+            // turn off call forwarding
+            callNumber(appUtil, number);
+
+            // send sms to AEOS admins
+            String sms_message = appProperties.getProperty("sms.alarm.no.person")
+                                    .replaceAll("_week_",appUtil.getWeekIndex());
+            for (String num: getAEOSAdminsPhones()) {
+                appUtil.sendSMS(this, num, sms_message);
+            }
+
+            // update runtime properties
+            runtimeProperties.put(LAST_ACTION_TS, Long.toString(now.getTime()));
+            runtimeProperties.put(LAST_ACTION_NUMBER, number);
+            runtimeProperties.put(LAST_ACTION_PERSON, "");
+            appUtil.persistentRuntimeProperties(runtimeProperties);
+        }
+    }
+
+    private void turnOnCallForwarding(AppUtil appUtil, String manOnDuty, String manOnDutyPhone){
+        String number = appProperties.getProperty("call.forwarding.auto.vodafone")
+                .replaceAll("Zielrufnummer", manOnDutyPhone);
+
+        Properties runtimeProperties = appUtil.readRuntimeProperties();
+        long lastActionTS = runtimeProperties.getProperty(LAST_ACTION_TS) == null?
+                0 : Long.parseLong(runtimeProperties.getProperty(LAST_ACTION_TS));
+        String lastActionNum = runtimeProperties.getProperty(LAST_ACTION_NUMBER) == null?
+                "" : runtimeProperties.getProperty(LAST_ACTION_NUMBER);
+        String lastActionPerson = runtimeProperties.getProperty(LAST_ACTION_PERSON) == null?
+                "" : runtimeProperties.getProperty(LAST_ACTION_PERSON);
+
+        Date now = new Date();
+        long one_week = (7 * 24 * 3600 * 1000L) - (2 * 3600 * 1000L);
+
+        // avoid duplicated actions in same week
+        if ((now.getTime() - lastActionTS) > one_week &&
+            !number.equalsIgnoreCase(lastActionNum) ) {
+            // turn on call forwarding to person
+            callNumber(appUtil, number);
+
+            // send sms to new person
+            String sms_message = appProperties.getProperty("sms.duty.on")
+                    .replaceAll("_name_",manOnDuty)
+                    .replaceAll("_number_",manOnDutyPhone);
+
+            appUtil.sendSMS(this, manOnDutyPhone, sms_message);
+
+            // send sms to last person
+            if (! lastActionPerson.isEmpty()) {
+                String phone = appProperties.getProperty("phone."+lastActionPerson);
+                sms_message = appProperties.getProperty("sms.duty.off")
+                        .replaceAll("_name_",lastActionPerson);
+                appUtil.sendSMS(this, phone, sms_message);
+            }
+
+            // update runtime properties
+            runtimeProperties.put(LAST_ACTION_TS, Long.toString(now.getTime()));
+            runtimeProperties.put(LAST_ACTION_NUMBER, number);
+            runtimeProperties.put(LAST_ACTION_PERSON, manOnDuty);
+
+            appUtil.persistentRuntimeProperties(runtimeProperties);
+        }
+    }
+
 }

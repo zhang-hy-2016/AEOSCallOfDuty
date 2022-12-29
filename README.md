@@ -1,10 +1,57 @@
 AEOSRufnummer
 =============
 
-Andorid App to schedlue AEOS number forwarding 
+Andorid App to turn on/off service call forwarding to personal mobil number. 
 
 
 
+# Configuration
+
+## duty plan  
+The duty plan is defined at file `/storage/emulated/0/Documents/aeos_call/aeos_dutyplan.csv`, this
+file must be existed before start application. 
+
+The first line must be `name;kw1;kw2;kw3....kw52`,  You can find the example 
+at [aeos_dutyplan.csv](doc/aeos_dutyplan.csv) 
+
+## Application configuration 
+see more at [app.properties](app/src/main/assets/app.properties)
+
+### personal mobil number
+```
+phone.u1=011111
+phone.u2=021111
+...
+```
+### Call forwarding Pattern
+see more at https://www.vodafone.de/infofaxe/374.pdf
+```
+call.forwarding.auto.vodafone=**21*Zielrufnummer#
+call.forwarding.stop.vodafone=##21#
+```
+## Runtime properties
+
+The runtime properties file `/storage/emulated/0/Documents/aeos_call/app_runtime.properties`
+keeps the values from last execution, this file is generated at runtime.  
+
+
+# Work flow
+The switching action is happened at every `Monday` between 06:00 to 08:00.
+
+Steps
+- look up person in duty plan for current week  
+- turn on call forwarding to person's mobile phone 
+- send sms to old and new person  
+
+Exception  
+- when there is no duty person for current week or there is no phone number (due to misconfiguration), 
+  this app send sms (`sms.alarm.no.person`) to every person who is listed 
+  at [app.properties](app/src/main/assets/app.properties)
+
+
+
+
+# Development  
 Update/Create `local.properties` file after git clone. 
 
 ```
