@@ -157,11 +157,11 @@ public class MainActivity extends AppCompatActivity {
         StringBuffer status = new StringBuffer();
         status.append("Status: \n");
         status.append(job_status).append("\n");
-
+        status.append("-------------------").append("\n");
         status.append("Current Week:").append(currentWeek).append("\n");
         status.append("Current Man on Duty:").append(manOnDuty).append(("\n"));
         status.append("Current number:").append(manOnDutyPhone).append(("\n"));
-
+        status.append("-------------------").append("\n");
         status.append("Last Action Time: ").append(actionTime).append("\n");
         status.append("Last Action Person: ").append(lastActionPerson).append("\n");
         status.append("Last Action Number: ").append(lastActionNum).append("\n");
