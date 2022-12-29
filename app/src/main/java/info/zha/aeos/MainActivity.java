@@ -1,5 +1,9 @@
 package info.zha.aeos;
 
+import static info.zha.aeos.TimeWatchJob.LAST_ACTION_NUMBER;
+import static info.zha.aeos.TimeWatchJob.LAST_ACTION_PERSON;
+import static info.zha.aeos.TimeWatchJob.LAST_ACTION_TS;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -15,11 +19,11 @@ import android.widget.TextView;
 
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -27,10 +31,10 @@ public class MainActivity extends AppCompatActivity {
     AppUtil appUtil;
     Properties appProperties;
 
-
     Button start_button;
+    Button status_button;
     Button stop_button;
-    Button test_button;
+
     TextView msgView;
 
     @Override
@@ -51,32 +55,29 @@ public class MainActivity extends AppCompatActivity {
         start_button = (Button) findViewById(R.id.bnt_start);
         start_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.i(TAG, "Start button is fired");
+                Log.d(TAG, "Start button is fired");
                 createTimeWatchJob();
+                msgView.setText((CharSequence) getStatusInfo());
+            }
+        });
+
+        status_button = (Button) findViewById(R.id.bnt_status);
+        status_button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                msgView.setText((CharSequence) getStatusInfo());
             }
         });
 
         stop_button = (Button) findViewById(R.id.bnt_stop);
         stop_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.i(TAG, "Stop button is fired");
                 stop_all_jobs();
+                msgView.setText((CharSequence) getStatusInfo());
             }
         });
 
-        test_button = (Button) findViewById(R.id.bnt_test);
-        test_button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Log.d(TAG, "test button is fired");
-                //appUtil.getDutyPerson(dutyPlan);
-                msgView.setText((CharSequence) appProperties.getProperty("monday.min.hour"));
-
-
-            }
-        });
-
-        msgView =  (TextView) findViewById(R.id.txt_msg_displayer);
-        msgView.setText((CharSequence) "init. ");
+        msgView =  (TextView) findViewById(R.id.txt_MultiLine);
+        msgView.setText((CharSequence) "Click Status button to refresh.");
     }
 
     private void setupToolbox() throws IOException {
@@ -92,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
     private void createTimeWatchJob(){
         ComponentName componentName = new ComponentName(this, TimeWatchJob.class);
         int jobId = 5001;
-
 
         if (isJobExist(jobId)){
             Log.i(TAG, String.format("Job [%s] already exists!",jobId));
@@ -133,6 +133,41 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    private StringBuffer getStatusInfo(){
+        String job_status = isJobExist(5001)?
+                "Main Thread is running":
+                "Main Thread is stopped, you need to click the start button.";
+        String currentWeek = appUtil.getWeekIndex();
+        Map<String, String> dutyPlan =
+                appUtil.buildDutyPlan(appProperties.getProperty("duty.plan.csv"));
+        String manOnDuty = appUtil.getDutyPerson(dutyPlan);
+        String manOnDutyPhone = appProperties.getProperty("phone."+manOnDuty);
+
+        Properties runtimeProperties = appUtil.readRuntimeProperties();
+        long lastActionTS = runtimeProperties.getProperty(LAST_ACTION_TS) == null?
+                0 : Long.parseLong(runtimeProperties.getProperty(LAST_ACTION_TS));
+        String lastActionNum = runtimeProperties.getProperty(LAST_ACTION_NUMBER) == null?
+                "" : runtimeProperties.getProperty(LAST_ACTION_NUMBER);
+        String lastActionPerson = runtimeProperties.getProperty(LAST_ACTION_PERSON) == null?
+                "" : runtimeProperties.getProperty(LAST_ACTION_PERSON);
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        String actionTime = lastActionTS==0?"N.A.": df.format(new Date(lastActionTS));
+
+        StringBuffer status = new StringBuffer();
+        status.append("Status: \n");
+        status.append(job_status).append("\n");
+
+        status.append("Current Week:").append(currentWeek).append("\n");
+        status.append("Current Man on Duty:").append(manOnDuty).append(("\n"));
+        status.append("Current number:").append(manOnDutyPhone).append(("\n"));
+
+        status.append("Last Action Time: ").append(actionTime).append("\n");
+        status.append("Last Action Person: ").append(lastActionPerson).append("\n");
+        status.append("Last Action Number: ").append(lastActionNum).append("\n");
+        return status;
+    }
+
     private void stop_all_jobs() {
         JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         List<JobInfo> allPendingJobs = scheduler.getAllPendingJobs();
@@ -141,18 +176,7 @@ public class MainActivity extends AppCompatActivity {
             scheduler.cancel(id);
             Log.i(TAG, "Cancel job with id = " + id );
         }
-
     }
-
-    private void readLocalFile(){
-        Context context= getApplicationContext();
-
-        InputStream inputStream = context.getResources().openRawResource(R.raw.info);
-        Scanner s = new Scanner(inputStream).useDelimiter("\\A");
-        String result = s.hasNext() ? s.next() : "";
-        Log.d(TAG,  "Res = " + result);
-    }
-
 
 }
 

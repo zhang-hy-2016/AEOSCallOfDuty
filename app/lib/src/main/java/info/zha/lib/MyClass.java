@@ -11,8 +11,10 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class MyClass {
 
@@ -153,10 +156,23 @@ public class MyClass {
             System.out.println(call_forward_auto);
             System.out.println(call_forward_auto.replaceAll("Zielrufnummer","111111111"));
 
-            System.out.println(appProperties.getProperty("phone.u5" ));
+            System.out.println(appProperties.getProperty("sms.duty.on" ));
+            System.out.println(appProperties.getProperty("sms.duty.off" ));
+
+            List<String> admins = new ArrayList<>();
+            for (String key: appProperties.stringPropertyNames()) {
+                if (key.contains("phone.")) {
+                    admins.add(appProperties.getProperty(key));
+                }
+            }
+
+            System.out.println(Arrays.toString(admins.toArray()));
 
 
+            String ab = "";
 
+            System.out.println(ab.equalsIgnoreCase(""));
+            System.out.println(ab.isEmpty());
 
         } catch (Exception e) {
             e.printStackTrace();

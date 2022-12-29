@@ -10,42 +10,44 @@
         android:id="@+id/bnt_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
-        android:layout_marginTop="116dp"
-        android:text="start"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="30dp"
+        android:text="Start"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/bnt_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="30dp"
+        android:text="Status"
+        app:layout_constraintStart_toEndOf="@+id/bnt_start"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/txt_MultiLine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="50dp"
+        android:ems="10"
+        android:gravity="start|top"
+        android:inputType="textMultiLine"
+        android:text="Status:"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bnt_start" />
 
     <Button
         android:id="@+id/bnt_stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="76dp"
-        android:layout_marginTop="116dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="30dp"
         android:text="Stop"
-        app:layout_constraintStart_toEndOf="@+id/bnt_start"
+        app:layout_constraintStart_toEndOf="@+id/bnt_status"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/bnt_test"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="237dp"
-        android:text="test"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bnt_start" />
-
-    <TextView
-        android:id="@+id/txt_msg_displayer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="76dp"
-        android:layout_marginEnd="252dp"
-        android:text="Hello"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bnt_test" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

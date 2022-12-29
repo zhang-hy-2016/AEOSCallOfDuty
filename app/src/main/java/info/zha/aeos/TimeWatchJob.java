@@ -35,12 +35,9 @@ public class TimeWatchJob extends JobService {
     // ths object will be updated in every onStartJob call
     private Properties appProperties;
 
-
     static String LAST_ACTION_TS="last.action.ts";          // timestamp of last action
     static String LAST_ACTION_PERSON="last.action.person";
     static String LAST_ACTION_NUMBER="last.action.number";  // Call-out numbers of last action
-
-
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
@@ -78,19 +75,20 @@ public class TimeWatchJob extends JobService {
         String manOnDutyPhone = appProperties.getProperty("phone."+manOnDuty);
 
         if ( manOnDuty == null || manOnDutyPhone == null ) {
-            Log.w(TAG,"There is on person for  " + appUtil.getWeekIndex() +
-                    " or there is no phone number for " + manOnDuty);
-            Log.w(TAG,"Turn off call forwarding.");
-
-            appUtil.commitAppLog("There is on person for  " + appUtil.getWeekIndex() +
-                    " or there is no phone number for " + manOnDuty);
-            appUtil.commitAppLog("Turn off call forwarding");
-            turnOffCallForwarding(appUtil);
+            if (turnOffCallForwarding(appUtil)) {
+                Log.w(TAG,"There is on person for  " + appUtil.getWeekIndex() +
+                        " or there is no phone number for " + manOnDuty);
+                Log.w(TAG,"Turn off call forwarding.");
+                appUtil.commitAppLog("There is on person for  " + appUtil.getWeekIndex() +
+                        " or there is no phone number for " + manOnDuty);
+                appUtil.commitAppLog("Turn off call forwarding");
+            }
         } else {
             // Set call forwarding to duty person
-            Log.i(TAG,"Turn on call forwarding to " + manOnDuty + ":" + manOnDutyPhone);
-            appUtil.commitAppLog("Turn on call forwarding to " + manOnDuty + ":" + manOnDutyPhone);
-            turnOnCallForwarding(appUtil, manOnDuty, manOnDutyPhone);
+            if (turnOnCallForwarding(appUtil, manOnDuty, manOnDutyPhone)) {
+                Log.i(TAG,"Turn on call forwarding to " + manOnDuty + ":" + manOnDutyPhone);
+                appUtil.commitAppLog("Turn on call forwarding to " + manOnDuty + ":" + manOnDutyPhone);
+            }
         }
     }
 
@@ -134,8 +132,10 @@ public class TimeWatchJob extends JobService {
         return admins;
     }
 
-
-    private void turnOffCallForwarding(AppUtil appUtil){
+    /**
+     * @return true when action has been made.
+     */
+    private boolean turnOffCallForwarding(AppUtil appUtil){
         String number = appProperties.getProperty("call.forwarding.stop.vodafone");
 
         Properties runtimeProperties = appUtil.readRuntimeProperties();
@@ -162,10 +162,15 @@ public class TimeWatchJob extends JobService {
             runtimeProperties.put(LAST_ACTION_NUMBER, number);
             runtimeProperties.put(LAST_ACTION_PERSON, "");
             appUtil.persistentRuntimeProperties(runtimeProperties);
+            return true;
         }
+        return false;
     }
 
-    private void turnOnCallForwarding(AppUtil appUtil, String manOnDuty, String manOnDutyPhone){
+    /**
+     * @return true when action has been made.
+     */
+    private boolean turnOnCallForwarding(AppUtil appUtil, String manOnDuty, String manOnDutyPhone){
         String number = appProperties.getProperty("call.forwarding.auto.vodafone")
                 .replaceAll("Zielrufnummer", manOnDutyPhone);
 
@@ -207,7 +212,9 @@ public class TimeWatchJob extends JobService {
             runtimeProperties.put(LAST_ACTION_PERSON, manOnDuty);
 
             appUtil.persistentRuntimeProperties(runtimeProperties);
+            return true;
         }
+        return false;
     }
 
 }
