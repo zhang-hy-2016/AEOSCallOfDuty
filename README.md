@@ -7,6 +7,9 @@ Andorid App to turn on/off service call forwarding to personal mobil number.
 
 # Configuration
 
+## Permission in your phone 
+You need to allow all listed permissions for this application.  
+
 ## duty plan  
 The duty plan is defined at file `/storage/emulated/0/Documents/aeos_call/aeos_dutyplan.csv`, this
 file must be existed before start application. 

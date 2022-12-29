@@ -5,8 +5,10 @@
     <!-- Permissions to read/write of storage-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <!-- Permission for phone call -->
+    <!-- Permission for phone call and sms-->
     <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+
     <!-- Permission to persist TimeWatchJob  -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 

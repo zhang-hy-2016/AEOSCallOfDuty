@@ -68,8 +68,6 @@ public class MainActivity extends AppCompatActivity {
         test_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.d(TAG, "test button is fired");
-                Map<String, String> dutyPlan = appUtil.buildDutyPlan();
-                appUtil.viewDutyPlan(dutyPlan);
                 //appUtil.getDutyPerson(dutyPlan);
                 msgView.setText((CharSequence) appProperties.getProperty("monday.min.hour"));
 

@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.telephony.SmsManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -116,8 +115,8 @@ public class AppUtil {
      * Build DutyPlan from csv file
      * @return An empty map when csv file is missing or other exception
      */
-    public Map<String,String> buildDutyPlan(){
-        File aeos_plan = new File(appFilesFolder, "aeos_dutyplan.csv");
+    public Map<String,String> buildDutyPlan(String dutyplan_csv){
+        File aeos_plan = new File(appFilesFolder, dutyplan_csv);
         if (!aeos_plan.exists()) {
             Log.e(TAG, "Can not find csv file at " + aeos_plan.getAbsolutePath());
             commitAppLog("Can not find csv file at " + aeos_plan.getAbsolutePath());
@@ -268,12 +267,10 @@ public class AppUtil {
         try {
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNo, null, msg, null, null);
-            Toast.makeText(context, "Message Sent",
-                    Toast.LENGTH_LONG).show();
+            Log.i(TAG, "Send sms to " + phoneNo + ":" + msg);
+            commitAppLog("Send sms to " + phoneNo + ":" + msg);
         } catch (Exception ex) {
             Log.w(TAG, "Can't send sms to " + phoneNo, ex);
         }
     }
-
-
 }

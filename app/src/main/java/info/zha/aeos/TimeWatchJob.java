@@ -70,7 +70,7 @@ public class TimeWatchJob extends JobService {
             return;
         }
 
-        Map<String, String> dutyPlan = appUtil.buildDutyPlan();
+        Map<String, String> dutyPlan = appUtil.buildDutyPlan(appProperties.getProperty("duty.plan.csv"));
         appUtil.viewDutyPlan(dutyPlan); // for debug only
 
         String manOnDuty = appUtil.getDutyPerson(dutyPlan);
