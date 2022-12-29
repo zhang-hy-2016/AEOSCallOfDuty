@@ -12,6 +12,12 @@ import android.os.SystemClock;
 
 import android.util.Log;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
 /*
  * onStartJob和onStopJob方法是执行在主线程中的，我们不可以在其中做耗时操作，否则可能导致ANR。
  * onStartJob方法在系统判定达到约束条件时被调用，我们在此处执行我们的业务逻辑。
@@ -32,6 +38,8 @@ import android.util.Log;
 public class TimeWatchJob extends JobService {
     private static final String TAG = TimeWatchJob.class.getName();
 
+    // ths object will be updated in every onStartJob call
+    private Properties appProperties;
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
@@ -58,12 +66,69 @@ public class TimeWatchJob extends JobService {
         // create a new appUtil object
         AppUtil appUtil = new AppUtil();
         appUtil.commitAppLog("TimeWatchJob: Start to working");
+        appProperties = appUtil.getAppProperties(this);
 
-        String number = "11111";
+        if (! isMondayMorning() ) {
+            // switching should be only happened at every Monday morning.
+            return;
+        }
+
+        Map<String, String> dutyPlan = appUtil.buildDutyPlan();
+        appUtil.viewDutyPlan(dutyPlan);
+
+        String manOnDuty = appUtil.getDutyPerson(dutyPlan);
+        Log.i(TAG,"Find Man on duty is " +  manOnDuty);
+
+        String manOnDutyPhone = appProperties.getProperty("phone."+manOnDuty);
+        if ( manOnDuty == null || manOnDutyPhone == null ) {
+            Log.w(TAG,"There is on person for  " + appUtil.getWeekIndex() +
+                    " or there is no phone number for " + manOnDuty);
+            String number = appProperties.getProperty("call.forwarding.stop.vodafone");
+            Log.w(TAG,"Switch off call forwarding.");
+
+            appUtil.commitAppLog("There is on person for  " + appUtil.getWeekIndex() +
+                    " or there is no phone number for " + manOnDuty);
+            appUtil.commitAppLog("Turn off call forwarding");
+
+            callNumber(appUtil, number);
+
+        } else {
+            // Set call forwarding to duty person
+            String number = appProperties.getProperty("call.forwarding.auto.vodafone")
+                    .replaceAll("Zielrufnummer", manOnDutyPhone);
+            Log.i(TAG,"Turn on call forwarding to " + manOnDuty + ":" + manOnDutyPhone);
+            appUtil.commitAppLog("Turn on call forwarding to " + manOnDuty + ":" + manOnDutyPhone);
+            callNumber(appUtil, number);
+        }
+
+    }
+
+    private void callNumber(AppUtil appUtil, String number) {
         try {
             appUtil.callNumber(this, number);
         } catch (Exception e){
             Log.e(TAG, "Can not call to " + number, e);
         }
+    }
+
+    private boolean isMondayMorning(){
+        // Setup Calender, kw1 = the first full week
+        Calendar now = GregorianCalendar.getInstance(Locale.GERMANY);
+        now.setFirstDayOfWeek(Calendar.MONDAY);
+        now.setMinimalDaysInFirstWeek(4); // 4 is ISO 8601 standard compatible setting
+
+        // for debug only , enforce return true
+        now.set(2022,Calendar.DECEMBER, 26, 6, 30);
+
+        int min_hour = appProperties.getProperty("monday.min.hour") == null ?
+                6 : Integer.parseInt(appProperties.getProperty("monday.min.hour"));
+        int max_hour = appProperties.getProperty("monday.max.hour") == null ?
+                8 : Integer.parseInt(appProperties.getProperty("monday.max.hour"));
+
+        if (now.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY &&
+            now.get(Calendar.HOUR_OF_DAY) >= min_hour && now.get(Calendar.HOUR_OF_DAY) <= max_hour){
+            return true;
+        }
+        return false;
     }
 }

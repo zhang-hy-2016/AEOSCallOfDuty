@@ -3,42 +3,35 @@ package info.zha.aeos;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.os.Environment;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
-import android.content.Context;
+import android.widget.TextView;
 
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Scanner;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     AppUtil appUtil;
+    Properties appProperties;
+
 
     Button start_button;
     Button stop_button;
-    Button save_button;
+    Button test_button;
+    TextView msgView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +39,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         try {
+            setupToolbox();
             setupLayoutComponents();
-            setupStorage();
-
         } catch (Exception e){
             Log.e(TAG, "Unable to initialize due to:", e);
         }
@@ -56,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupLayoutComponents() {
-        Button start_button = (Button) findViewById(R.id.bnt_start);
+        start_button = (Button) findViewById(R.id.bnt_start);
         start_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.i(TAG, "Start button is fired");
@@ -64,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button stop_button = (Button) findViewById(R.id.bnt_stop);
+        stop_button = (Button) findViewById(R.id.bnt_stop);
         stop_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.i(TAG, "Stop button is fired");
@@ -72,18 +64,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button save_button = (Button) findViewById(R.id.bnt_save);
-        save_button.setOnClickListener(new View.OnClickListener() {
+        test_button = (Button) findViewById(R.id.bnt_test);
+        test_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.d(TAG, "Save button is fired");
-                appUtil.commitAppLog("test test test ");
+                Log.d(TAG, "test button is fired");
+                Map<String, String> dutyPlan = appUtil.buildDutyPlan();
+                appUtil.viewDutyPlan(dutyPlan);
+                //appUtil.getDutyPerson(dutyPlan);
+                msgView.setText((CharSequence) appProperties.getProperty("monday.min.hour"));
+
+
             }
         });
+
+        msgView =  (TextView) findViewById(R.id.txt_msg_displayer);
+        msgView.setText((CharSequence) "init. ");
     }
 
-    private void setupStorage() throws IOException {
+    private void setupToolbox() throws IOException {
         appUtil = new AppUtil();
         appUtil.commitAppLog("-------");
+        appProperties = appUtil.getAppProperties(this);
+        Log.i(TAG, "Successful load application properties, app.version="
+                + appProperties.getProperty("app.version"));
+
     }
 
 
@@ -101,8 +105,10 @@ public class MainActivity extends AppCompatActivity {
         appUtil.commitAppLog("Create TimeWatch Job ...");
         JobInfo jobInfo;
 
+        int inv_minute = appProperties.getProperty("watch.job.interval_minute") == null ?
+                120 : Integer.parseInt(appProperties.getProperty("watch.job.interval_minute"));
         // see more at https://stackoverflow.com/questions/51304185/jobscheduler-executes-after-every-15-min
-        long intervalMillis = 20 * 60 * 1000; // every 20 minutes
+        long intervalMillis = inv_minute * 60 * 1000; // every x minutes
         long flexMillis = 5 * 60 * 1000;      // wait 5 minute, then start the job
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -147,7 +153,6 @@ public class MainActivity extends AppCompatActivity {
         Scanner s = new Scanner(inputStream).useDelimiter("\\A");
         String result = s.hasNext() ? s.next() : "";
         Log.d(TAG,  "Res = " + result);
-
     }
 
 
