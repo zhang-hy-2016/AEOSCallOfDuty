@@ -112,6 +112,34 @@ public class AppUtil {
     }
 
     /**
+     * get duty plan status information
+     * @param dutyplan_csv
+     * @return
+     */
+    public StringBuffer checkDutyPlan(String dutyplan_csv){
+        StringBuffer info = new StringBuffer();
+        File aeos_plan = new File(appFilesFolder, dutyplan_csv);
+        if (!aeos_plan.exists()){
+            info.append("Can't find duty plan at ").append(aeos_plan.getAbsolutePath()).append("\n");
+            info.append("Please ensure this file is existed or the app has permission on it. ");
+            return info;
+        }
+        try {
+            Reader in = new FileReader(aeos_plan);
+            CSVFormat csvFormat =  CSVFormat.Builder.create(CSVFormat.EXCEL)
+                    .setDelimiter(';')
+                    .build();
+            Iterable<CSVRecord> records = csvFormat.parse(in);
+            info.append("Duty plan is OK ");
+        } catch (IOException e){
+            info.append("Can not read duty plan at ").append(aeos_plan.getAbsolutePath()).append("\n");
+            info.append("Please ensure this file is existed or the app has permission on it. ");
+
+        }
+        return info;
+    }
+
+    /**
      * Build DutyPlan from csv file
      * @return An empty map when csv file is missing or other exception
      */

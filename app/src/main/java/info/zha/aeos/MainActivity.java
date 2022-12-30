@@ -138,6 +138,10 @@ public class MainActivity extends AppCompatActivity {
                 "Main Thread is running":
                 "Main Thread is stopped, you need to click the start button.";
         String currentWeek = appUtil.getWeekIndex();
+
+        StringBuffer planFileStatus =
+                appUtil.checkDutyPlan(appProperties.getProperty("duty.plan.csv"));
+
         Map<String, String> dutyPlan =
                 appUtil.buildDutyPlan(appProperties.getProperty("duty.plan.csv"));
         String manOnDuty = appUtil.getDutyPerson(dutyPlan);
@@ -157,6 +161,8 @@ public class MainActivity extends AppCompatActivity {
         StringBuffer status = new StringBuffer();
         status.append("Status: \n");
         status.append(job_status).append("\n");
+        status.append("-------------------").append("\n");
+        status.append(planFileStatus).append("\n");
         status.append("-------------------").append("\n");
         status.append("Current Week:").append(currentWeek).append("\n");
         status.append("Current Man on Duty:").append(manOnDuty).append(("\n"));
