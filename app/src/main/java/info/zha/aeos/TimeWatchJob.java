@@ -1,6 +1,8 @@
 package info.zha.aeos;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.Intent;
+import android.os.PowerManager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -43,7 +45,6 @@ public class TimeWatchJob extends JobService {
     public boolean onStartJob(JobParameters jobParameters) {
         Log.d(TAG, "onStartJob....");
         doMyJob();
-
         // return false to tell scheduleManager job is finished.
         return false;
     }
@@ -92,11 +93,29 @@ public class TimeWatchJob extends JobService {
         }
     }
 
-    private void callNumber(AppUtil appUtil, String number) {
+    private void wakeUpAndCall(AppUtil appUtil, String number){
         try {
-            appUtil.callNumber(this, number);
+            // We must Wakeup Phone -> Open Main -> make call
+            Log.d(TAG, "WakeUP Phone");
+            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+            PowerManager.WakeLock wakeLock = powerManager.newWakeLock(
+                    PowerManager.PARTIAL_WAKE_LOCK,
+                    "aeos::TimeWatchTag");
+            wakeLock.acquire();
+
+            // switch to main window
+            Intent main_intent = new Intent(this.getApplicationContext(), MainActivity.class);
+            main_intent.setAction(Intent.ACTION_VIEW);
+            main_intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            main_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            this.getApplicationContext().startActivity(main_intent);
+
+            // Make a phone call
+            appUtil.callNumber(this.getApplicationContext(), number);
+
+            wakeLock.release();
         } catch (Exception e){
-            Log.e(TAG, "Can not call to " + number, e);
+            Log.e(TAG, "Can not wake up and call " + number, e);
         }
     }
 
@@ -148,7 +167,7 @@ public class TimeWatchJob extends JobService {
         // avoid duplicated actions in same week
         if ((now.getTime() - lastActionTS) > one_week) {
             // turn off call forwarding
-            callNumber(appUtil, number);
+            wakeUpAndCall(appUtil, number);
 
             // send sms to AEOS admins
             String sms_message = appProperties.getProperty("sms.alarm.no.person")
@@ -189,7 +208,7 @@ public class TimeWatchJob extends JobService {
         if ((now.getTime() - lastActionTS) > one_week &&
             !number.equalsIgnoreCase(lastActionNum) ) {
             // turn on call forwarding to person
-            callNumber(appUtil, number);
+            wakeUpAndCall(appUtil, number);
 
             // send sms to new person
             String sms_message = appProperties.getProperty("sms.duty.on")

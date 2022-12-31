@@ -105,7 +105,10 @@ public class AppUtil {
         // Getting instance of Intent with action as ACTION_CALL
         Intent phone_intent = new Intent(Intent.ACTION_CALL);
         // Set data of Intent through Uri by parsing phone number
-        phone_intent.setData(Uri.parse("tel:" + number));
+        // Must Uri.encode(xx) for MMI Code
+        phone_intent.setData(Uri.parse("tel:" + Uri.encode(number)));
+        phone_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        phone_intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
         Log.i(TAG, "Dial Number " +  number);
         commitAppLog("Dial Number " +  number);
         context.startActivity(phone_intent);

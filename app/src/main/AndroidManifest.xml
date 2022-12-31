@@ -12,6 +12,8 @@
     <!-- Permission to persist TimeWatchJob  -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <!-- Permission to wakeup in TimeWatchJob  -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
