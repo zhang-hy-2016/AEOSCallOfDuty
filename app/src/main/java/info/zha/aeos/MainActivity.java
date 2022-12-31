@@ -68,18 +68,6 @@ public class MainActivity extends AppCompatActivity {
         status_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 msgView.setText((CharSequence) getStatusInfo());
-
-
-                //String controlCode="**21*+4915752709967#";
-//                Map<String, String> dutyPlan =
-//                        appUtil.buildDutyPlan(appProperties.getProperty("duty.plan.csv"));
-//                String manOnDuty = appUtil.getDutyPerson(dutyPlan);
-//                String manOnDutyPhone = appProperties.getProperty("phone."+manOnDuty);
-//                String controlCode = appProperties.getProperty("call.forwarding.auto.vodafone")
-//                        .replaceAll("Zielrufnummer", manOnDutyPhone);
-//                appUtil.callNumber(appContext, controlCode);
-
-
             }
         });
 
@@ -125,18 +113,18 @@ public class MainActivity extends AppCompatActivity {
         long flexMillis = 5 * 60 * 1000;      // wait 5 minute, then start the job
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-//            jobInfo = new JobInfo.Builder(jobId, componentName)
-//                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_NONE)   // don't need any network connection
-//                    .setPeriodic(intervalMillis, flexMillis)
-//                    .setPersisted(true)
-//                    .build();
-
-                // start this job immediately
-                long oneMinute = 30 * 1000L;
-                jobInfo =  new JobInfo.Builder(jobId ,componentName)
-                    .setMinimumLatency(oneMinute)
-                    .setOverrideDeadline(oneMinute)
+            jobInfo = new JobInfo.Builder(jobId, componentName)
+                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_NONE)   // don't need any network connection
+                    .setPeriodic(intervalMillis, flexMillis)
+                    .setPersisted(true)
                     .build();
+
+                  // use this code to start this job immediately (for testing)
+//                long k = 30 * 1000L;
+//                jobInfo =  new JobInfo.Builder(jobId ,componentName)
+//                    .setMinimumLatency(k)
+//                    .setOverrideDeadline(k)
+//                    .build();
 
             JobScheduler jobScheduler = (JobScheduler) getSystemService(
                     Context.JOB_SCHEDULER_SERVICE);

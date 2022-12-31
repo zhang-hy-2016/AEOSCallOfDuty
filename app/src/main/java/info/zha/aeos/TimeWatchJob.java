@@ -95,7 +95,7 @@ public class TimeWatchJob extends JobService {
 
     private void wakeUpAndCall(AppUtil appUtil, String number){
         try {
-            // We must Wakeup Phone -> Open Main -> make call
+            // We must Wakeup Phone -> Open Main windows -> make call
             Log.d(TAG, "WakeUP Phone");
             PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
             PowerManager.WakeLock wakeLock = powerManager.newWakeLock(
