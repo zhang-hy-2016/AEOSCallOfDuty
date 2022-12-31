@@ -18,7 +18,6 @@ import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.widget.TextView;
 
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     Button start_button;
     Button status_button;
     Button stop_button;
+    Button force_on_button;
 
     TextView msgView;
 
@@ -76,6 +76,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 stop_all_jobs();
                 msgView.setText((CharSequence) getStatusInfo());
+            }
+        });
+
+        // Manually setup call forwarding to duty person of current week
+        force_on_button = (Button) findViewById(R.id.bnt_force_on);
+        force_on_button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                StringBuffer info = new StringBuffer("Setup Call Forwarding to ")
+                                        .append(setCallForwarding());
+                msgView.setText((CharSequence) info);
             }
         });
 
@@ -142,6 +152,23 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return false;
+    }
+
+    /**
+     * Setup Call Forwarding to duty person
+     */
+    private String setCallForwarding(){
+        Map<String, String> dutyPlan =
+                appUtil.buildDutyPlan(appProperties.getProperty("duty.plan.csv"));
+        String manOnDuty = appUtil.getDutyPerson(dutyPlan);
+        String manOnDutyPhone = appProperties.getProperty("phone."+manOnDuty);
+        String mmi_code = appProperties.getProperty("call.forwarding.auto.vodafone")
+                .replaceAll("Zielrufnummer", manOnDutyPhone);
+
+        appUtil.callNumber(this, mmi_code);
+        Log.i(TAG, "Manually setup call forwarding to " + manOnDutyPhone);
+        appUtil.commitAppLog("Manually setup call forwarding to " + manOnDutyPhone);
+        return manOnDuty+":"+manOnDutyPhone;
     }
 
     private StringBuffer getStatusInfo(){
