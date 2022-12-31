@@ -165,10 +165,10 @@ public class MainActivity extends AppCompatActivity {
         String mmi_code = appProperties.getProperty("call.forwarding.auto.vodafone")
                 .replaceAll("Zielrufnummer", manOnDutyPhone);
 
-        appUtil.callNumber(this, mmi_code);
         Log.i(TAG, "Manually setup call forwarding to " + manOnDutyPhone);
         appUtil.commitAppLog("Manually setup call forwarding to " + manOnDutyPhone);
-        return manOnDuty+":"+manOnDutyPhone;
+        appUtil.callNumber(this, mmi_code);
+      return manOnDuty+":"+manOnDutyPhone;
     }
 
     private StringBuffer getStatusInfo(){
