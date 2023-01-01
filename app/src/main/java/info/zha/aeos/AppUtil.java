@@ -174,7 +174,7 @@ public class AppUtil {
                 if (head_line){
                     for (int i = 1; i < record.size(); i++){
                         // create week index
-                        dutyPlan.put(record.get(i), "");
+                        dutyPlan.put(record.get(i).toLowerCase(), "");
                     }
                     head_line = false;
                 } else {
@@ -182,7 +182,7 @@ public class AppUtil {
                     for (int i = 1; i < record.size(); i++ ) {
                         String v = record.get(i);
                         String week = "kw" + i;
-                        if (v.contains("b")) {
+                        if (v.contains("b") || v.contains("B")) {
                             // add user into duty plan
                             dutyPlan.put(week,user);
                         }

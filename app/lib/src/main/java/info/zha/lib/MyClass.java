@@ -1,5 +1,6 @@
 package info.zha.lib;
 
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,7 +24,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 public class MyClass {
 
@@ -58,7 +58,7 @@ public class MyClass {
 
     public static void test2() {
         //File aeos_plan = new File("E:\\099_Temp\\aeos_example.csv");
-        File aeos_plan = new File("E:\\099_Temp\\aeos_dutyplan.csv");
+        File aeos_plan = new File("c:\\workspace\\098_AndroidStudio_ws\\aeosrufnummer\\doc\\aeos_dutyplan.csv");
 
         /*
           dutyPlan example:
@@ -82,7 +82,7 @@ public class MyClass {
                 if (head_line){
                     for (int i = 1; i < record.size(); i++){
                         // create week index
-                        dutyPlan.put(record.get(i), "");
+                        dutyPlan.put(record.get(i).toLowerCase(), "");
                     }
                     head_line = false;
                 } else {
@@ -90,7 +90,7 @@ public class MyClass {
                     for (int i = 1; i < record.size(); i++ ) {
                         String v = record.get(i);
                         String week = "kw" + i;
-                        if (v.contains("b")) {
+                        if (v.contains("b") || v.contains("B")) {
                             // add user into duty plan
                             dutyPlan.put(week,user);
                         }
@@ -147,7 +147,9 @@ public class MyClass {
     public static void propertiesTest() {
         try {
 
-            File appPropertiesFile = new File("E:\\012_WorkSpace\\android_ws\\AEOSRufnummer\\app\\src\\main\\assets\\app.properties");
+            //File appPropertiesFile = new File("E:\\012_WorkSpace\\android_ws\\AEOSRufnummer\\app\\src\\main\\assets\\app.properties");
+            File appPropertiesFile = new File("C:\\workspace\\098_AndroidStudio_ws\\AEOSRufnummer\\app\\src\\main\\assets\\app.properties");
+
             InputStream input = new FileInputStream(appPropertiesFile);
             Properties appProperties = new Properties();
             appProperties.load(input);
@@ -155,6 +157,10 @@ public class MyClass {
             String call_forward_auto=appProperties.getProperty("call.forwarding.auto.vodafone");
             System.out.println(call_forward_auto);
             System.out.println(call_forward_auto.replaceAll("Zielrufnummer","111111111"));
+
+
+
+            System.out.println( "Max: "+ appProperties.getProperty("phone.Alexander Max"));
 
             System.out.println(appProperties.getProperty("sms.duty.on" ));
             System.out.println(appProperties.getProperty("sms.duty.off" ));
@@ -179,9 +185,11 @@ public class MyClass {
         }
     }
 
+
     public static void main(String[] args) {
         //test1();
-        //test2();
+        test2();
         propertiesTest();
+
     }
 }
