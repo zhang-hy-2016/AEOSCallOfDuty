@@ -1,12 +1,14 @@
 package info.zha.aeos;
 
-import static info.zha.aeos.TimeWatchJob.LAST_ACTION_NUMBER;
-import static info.zha.aeos.TimeWatchJob.LAST_ACTION_PERSON;
-import static info.zha.aeos.TimeWatchJob.LAST_ACTION_TS;
+import static info.zha.aeos.DutyPlanInspectorJob.LAST_ACTION_NUMBER;
+import static info.zha.aeos.DutyPlanInspectorJob.LAST_ACTION_PERSON;
+import static info.zha.aeos.DutyPlanInspectorJob.LAST_ACTION_TS;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -83,14 +86,53 @@ public class MainActivity extends AppCompatActivity {
         force_on_button = (Button) findViewById(R.id.bnt_force_on);
         force_on_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                StringBuffer info = new StringBuffer("Setup Call Forwarding to ")
-                                        .append(setCallForwarding());
-                msgView.setText((CharSequence) info);
+                Map<String, String> dutyPlan =
+                        appUtil.buildDutyPlan(appProperties.getProperty("duty.plan.csv"));
+                String manOnDuty = appUtil.getDutyPerson(dutyPlan);
+                String manOnDutyPhone = appProperties.getProperty("phone."+manOnDuty);
+                setForwardingOverAlert(manOnDuty, manOnDutyPhone);
             }
         });
 
         msgView =  (TextView) findViewById(R.id.txt_MultiLine);
         msgView.setText((CharSequence) "Click Status button to refresh.");
+    }
+
+    /**
+     * Manually setup call forwarding.
+     * @param manOnDuty
+     * @param manOnDutyPhone
+     */
+    private void setForwardingOverAlert(String manOnDuty, String manOnDutyPhone){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        // Setting Alert Dialog Title
+        alertDialogBuilder.setTitle("Confirm Manually operation");
+        // Setting Alert Dialog Message
+        alertDialogBuilder.setMessage("Are you sure of enable the call forwarding to " +
+                manOnDuty + ":" + manOnDutyPhone);
+        alertDialogBuilder.setCancelable(false);
+
+        alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface arg0, int arg1) {
+                Log.i(TAG, "Manually setup call forwarding to " + manOnDutyPhone);
+                appUtil.commitAppLog("Manually setup call forwarding to " + manOnDutyPhone);
+                setCallForwarding(manOnDutyPhone);
+                StringBuffer info = new StringBuffer("Enable call forwarding to ")
+                        .append(manOnDuty).append(":").append(manOnDutyPhone);
+                msgView.setText((CharSequence) info);
+            }
+        });
+
+        alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.d(TAG, "NO");
+            }
+        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 
     private void setupToolbox() throws IOException {
@@ -104,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void createTimeWatchJob(){
-        ComponentName componentName = new ComponentName(this, TimeWatchJob.class);
+        ComponentName componentName = new ComponentName(this, DutyPlanInspectorJob.class);
         int jobId = 5001;
 
         if (isJobExist(jobId)){
@@ -125,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             jobInfo = new JobInfo.Builder(jobId, componentName)
                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_NONE)   // don't need any network connection
-                    .setPeriodic(intervalMillis, flexMillis)
+                    .setPeriodic(intervalMillis)
                     .setPersisted(true)
                     .build();
 
@@ -157,18 +199,11 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Setup Call Forwarding to duty person
      */
-    private String setCallForwarding(){
-        Map<String, String> dutyPlan =
-                appUtil.buildDutyPlan(appProperties.getProperty("duty.plan.csv"));
-        String manOnDuty = appUtil.getDutyPerson(dutyPlan);
-        String manOnDutyPhone = appProperties.getProperty("phone."+manOnDuty);
+    private void setCallForwarding(String phoneNumber){
         String mmi_code = appProperties.getProperty("call.forwarding.auto.vodafone")
-                .replaceAll("Zielrufnummer", manOnDutyPhone);
-
-        Log.i(TAG, "Manually setup call forwarding to " + manOnDutyPhone);
-        appUtil.commitAppLog("Manually setup call forwarding to " + manOnDutyPhone);
+                .replaceAll("Zielrufnummer", phoneNumber);
+        appUtil.commitAppLog("Manually setup call forwarding to " + phoneNumber);
         appUtil.callNumber(this, mmi_code);
-      return manOnDuty+":"+manOnDutyPhone;
     }
 
     private StringBuffer getStatusInfo(){

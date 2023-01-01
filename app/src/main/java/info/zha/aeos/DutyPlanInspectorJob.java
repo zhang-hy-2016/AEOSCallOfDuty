@@ -29,10 +29,10 @@ import java.util.Properties;
  */
 
 /**
- *
+ * JobService to setup call forwarding based of duty plan.
  */
-public class TimeWatchJob extends JobService {
-    private static final String TAG = TimeWatchJob.class.getName();
+public class DutyPlanInspectorJob extends JobService {
+    private static final String TAG = DutyPlanInspectorJob.class.getName();
 
     // ths object will be updated in every onStartJob call
     private Properties appProperties;
@@ -125,11 +125,8 @@ public class TimeWatchJob extends JobService {
         now.setFirstDayOfWeek(Calendar.MONDAY);
         now.setMinimalDaysInFirstWeek(4); // 4 is ISO 8601 standard compatible setting
 
-        // for debug only , enforce return true
-        now.set(2022,Calendar.DECEMBER, 26, 6, 30);
-
         int min_hour = appProperties.getProperty("monday.min.hour") == null ?
-                6 : Integer.parseInt(appProperties.getProperty("monday.min.hour"));
+                7 : Integer.parseInt(appProperties.getProperty("monday.min.hour"));
         int max_hour = appProperties.getProperty("monday.max.hour") == null ?
                 8 : Integer.parseInt(appProperties.getProperty("monday.max.hour"));
 
