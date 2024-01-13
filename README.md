@@ -27,7 +27,7 @@ phone.u2=021111
 ...
 ```
 ### Call forwarding Pattern
-see more at https://www.vodafone.de/infofaxe/374.pdf
+see more at [vodafone service code](./doc/Service-Codes-vodafone.pdf)
 ```
 call.forwarding.auto.vodafone=**21*Zielrufnummer#
 call.forwarding.stop.vodafone=##21#
@@ -42,12 +42,12 @@ keeps the values from last execution, this file is generated at runtime.
 The switching action is happened at every `Monday` between 06:00 to 08:00.
 
 Steps
-- look up person in duty plan for current week  
-- turn on call forwarding to person's mobile phone 
-- send sms to old and new person  
+- Search for the responsible person in the duty roster for the current week
+- Enable call forwarding to the responsible person's mobile phone 
+- send sms to last and new responsible person  
 
 Exception  
-- when there is no duty person for current week or there is no phone number (due to misconfiguration), 
+- when there is no responsible person for current week or there is no phone number (due to misconfiguration), 
   this app send sms (`sms.alarm.no.person`) to every person who is listed 
   at [app.properties](app/src/main/assets/app.properties)
 
@@ -69,3 +69,19 @@ Update/Create `local.properties` file after git clone.
 # header note.
 sdk.dir=C\:\\Users\\homeuser\\AppData\\Local\\Android\\Sdk
 ```
+
+## Folder structure  
+
+`app/lib/src/...` : test code 
+
+`app/src/main/...`: main code
+
+
+## Working at android sdk
+
+## Run App 
+Connect Phone via USB
+
+At top bar, select `app` and device, then `Run App`  
+
+## Install app to your phone 

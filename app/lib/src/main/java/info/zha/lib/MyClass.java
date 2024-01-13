@@ -28,7 +28,7 @@ import java.util.TreeSet;
 public class MyClass {
 
     public static void test1(){
-        File aeos_plan = new File("E:\\099_Temp\\aeos_example.csv");
+        File aeos_plan = new File("C:\\workspace\\098_AndroidStudio_ws\\aeosrufnummer\\aeos_dutyplan.csv");
 
         BufferedReader reader;
         try {
@@ -130,6 +130,8 @@ public class MyClass {
         now.setMinimalDaysInFirstWeek(4); // 4 is ISO 8601 standard compatible setting
 
         String weekNum = "kw"+now.get(Calendar.WEEK_OF_YEAR);
+        System.out.println("current week = " + weekNum);
+
         return dutyPlan.containsKey(weekNum)?dutyPlan.get(weekNum): "";
     }
 
@@ -189,7 +191,7 @@ public class MyClass {
     public static void main(String[] args) {
         //test1();
         test2();
-        propertiesTest();
+        //propertiesTest();
 
     }
 }
