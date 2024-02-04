@@ -171,6 +171,8 @@ public class MyClass {
             for (String key: appProperties.stringPropertyNames()) {
                 if (key.contains("phone.")) {
                     admins.add(appProperties.getProperty(key));
+                    System.out.println("here - " + key + ": "+ appProperties.getProperty(key));
+
                 }
             }
 
@@ -190,8 +192,8 @@ public class MyClass {
 
     public static void main(String[] args) {
         //test1();
-        test2();
-        //propertiesTest();
+        //test2();
+        propertiesTest();
 
     }
 }
