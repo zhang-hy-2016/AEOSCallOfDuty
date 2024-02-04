@@ -10,7 +10,7 @@ Andorid App to turn on/off service call forwarding to personal mobil number.
 ## Permission in your phone 
 You need to allow all listed permissions for this application.  
 
-## duty plan  
+## duty roster  
 The duty plan is defined at file `/storage/emulated/0/Documents/aeos_call/aeos_dutyplan.csv`, this
 file must be existed before start application. 
 
@@ -84,4 +84,6 @@ Connect Phone via USB
 
 At top bar, select `app` and device, then `Run App`  
 
-## Install app to your phone 
+## Create APK and Install app to your phone 
+[How to Generate APK and Signed APK Files in Android Studio](https://code.tutsplus.com/how-to-generate-apk-and-signed-apk-files-in-android-studio--cms-37927t)
+> `Signed APK` files come in handy when you've tested your application and it is ready to be uploaded on the Play Store and released to the general public.

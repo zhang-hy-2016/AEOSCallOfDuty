@@ -237,10 +237,26 @@ public class AppUtil {
      * @return  an empty properties on exception
      */
     public Properties getAppProperties(Context context){
+        // load properties from default property file + customize property file
+        //
+        Properties appProperties = getAppDefaultProperties(context);
+        Properties cusProperties = getAppCustomizeProperties(
+                appProperties.getProperty("app_customize_properties"));
+        appProperties.putAll(cusProperties);
+        return appProperties;
+    }
+
+    /**
+     * Get Application default properties
+     * @param context
+     * @return
+     */
+    private Properties getAppDefaultProperties(Context context){
         Properties appProperties = new Properties();
         try {
             // Load application properties file
             String propertiesFile = "app.properties";
+            Log.i(TAG, "Read default properties from " + propertiesFile);
             AssetManager assetManager = context.getAssets();
             InputStream inputStream = assetManager.open(propertiesFile);
             appProperties.load(inputStream);
@@ -248,6 +264,29 @@ public class AppUtil {
             Log.e(TAG, "Can not load app.properties file." ,e);
         }
         return appProperties;
+    }
+
+    /**
+     * Read customize properties
+     * @param filename
+     * @return an empty property on exceptions
+     */
+    private Properties getAppCustomizeProperties(String filename){
+        File runtimeFile = new File(appFilesFolder, filename);
+        Log.i(TAG, "Read customize properties from " + runtimeFile.getAbsolutePath());
+        Properties customizeProperties = new Properties();
+
+        if (!runtimeFile.exists()) {
+            Log.d(TAG, "Can't find customize property file at "+ runtimeFile.getAbsolutePath());
+            return new Properties();
+        }
+
+        try {
+            customizeProperties.load(new FileInputStream(runtimeFile));
+        } catch (IOException e) {
+            Log.e(TAG, runtimeFile.getAbsolutePath() +  " is not a valid properties file");
+        }
+        return customizeProperties;
     }
 
     /**

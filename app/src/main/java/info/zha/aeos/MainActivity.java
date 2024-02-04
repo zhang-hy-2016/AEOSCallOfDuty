@@ -142,6 +142,11 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "Successful load application properties, app.version="
                 + appProperties.getProperty("app.version"));
 
+        for (String key: appProperties.stringPropertyNames()) {
+            if (key.contains("phone.")) {
+                Log.d(TAG,"Responsible Person " + key + ": "+ appProperties.getProperty(key));
+            }
+        }
     }
 
 
