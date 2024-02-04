@@ -17,6 +17,12 @@ file must be existed before start application.
 The first line must be `name;kw1;kw2;kw3....kw52`,  You can find the example 
 at [aeos_dutyplan.csv](doc/aeos_dutyplan.csv) 
 
+
+## Application customize property
+You can specify parameter at `/storage/emulated/0/Documents/aeos_call/app_customize.properties` wihtout
+touch the source project.
+
+
 ## Application configuration 
 see more at [app.properties](app/src/main/assets/app.properties)
 
@@ -36,6 +42,7 @@ call.forwarding.stop.vodafone=##21#
 
 The runtime properties file `/storage/emulated/0/Documents/aeos_call/app_runtime.properties`
 keeps the values from last execution, this file is generated at runtime.  
+
 
 
 # Work flow

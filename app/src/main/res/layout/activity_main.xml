@@ -34,6 +34,7 @@
         android:layout_marginStart="30dp"
         android:layout_marginTop="30dp"
         android:ems="10"
+        android:focusable="false"
         android:gravity="start|top"
         android:inputType="textMultiLine"
         android:text="Status:"

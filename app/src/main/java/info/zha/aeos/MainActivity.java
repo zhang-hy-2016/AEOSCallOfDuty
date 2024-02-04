@@ -10,6 +10,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.InputType;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -96,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
 
         msgView =  (TextView) findViewById(R.id.txt_MultiLine);
         msgView.setText((CharSequence) "Click Status button to refresh.");
+        msgView.setEnabled(true);
+        msgView.setMovementMethod(new ScrollingMovementMethod());
     }
 
     /**
@@ -244,12 +248,12 @@ public class MainActivity extends AppCompatActivity {
         status.append(planFileStatus).append("\n");
         status.append("-------------------").append("\n");
         status.append("Current Week:").append(currentWeek).append("\n");
-        status.append("Current Man on Duty:").append(manOnDuty).append(("\n"));
-        status.append("Current number:").append(manOnDutyPhone).append(("\n"));
+        status.append("Responder:").append(manOnDuty).append(("\n"));
+        status.append("Tel:").append(manOnDutyPhone).append(("\n"));
         status.append("-------------------").append("\n");
-        status.append("Last Action Time: ").append(actionTime).append("\n");
-        status.append("Last Action Person: ").append(lastActionPerson).append("\n");
-        status.append("Last Action Number: ").append(lastActionNum).append("\n");
+        status.append("Last Switching Time: ").append(actionTime).append("\n");
+        status.append("Responder: ").append(lastActionPerson).append("\n");
+        status.append("Tel: ").append(lastActionNum).append("\n");
         return status;
     }
 
