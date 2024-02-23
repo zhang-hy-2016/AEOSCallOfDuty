@@ -223,13 +223,33 @@ public class AppUtil {
         return weekNum;
     }
 
+    public static String getNextWeekIndex(){
+        // Setup Calender, kw1 = the first full week
+        Calendar now = GregorianCalendar.getInstance(Locale.GERMANY);
+        now.setFirstDayOfWeek(Calendar.MONDAY);
+        now.setMinimalDaysInFirstWeek(4); // 4 is ISO 8601 standard compatible setting
+        now.add(Calendar.WEEK_OF_YEAR,1);
+        String weekNum = "kw"+now.get(Calendar.WEEK_OF_YEAR);
+        return weekNum;
+    }
+
     /**
-     * get man on duty from current week .
+     * get man on duty for current week .
      * @param dutyPlan
      * @return An empty string for not matched search.
      */
     public String getDutyPerson(Map<String,String> dutyPlan){
         String weekNum = getWeekIndex();
+        return dutyPlan.containsKey(weekNum)?dutyPlan.get(weekNum): "";
+    }
+
+    /**
+     * get man on duty for next week .
+     * @param dutyPlan
+     * @return An empty string for not matched search.
+     */
+    public String getDutyPersonNextweek(Map<String,String> dutyPlan){
+        String weekNum = getNextWeekIndex();
         return dutyPlan.containsKey(weekNum)?dutyPlan.get(weekNum): "";
     }
 

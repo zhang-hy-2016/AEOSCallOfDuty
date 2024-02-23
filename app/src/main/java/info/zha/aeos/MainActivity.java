@@ -220,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
                 "Main Thread is running":
                 "Main Thread is stopped, you need to click the start button.";
         String currentWeek = appUtil.getWeekIndex();
+        String nextWeek = appUtil.getNextWeekIndex();
 
         StringBuffer planFileStatus =
                 appUtil.checkDutyPlan(appProperties.getProperty("duty.plan.csv"));
@@ -228,6 +229,9 @@ public class MainActivity extends AppCompatActivity {
                 appUtil.buildDutyPlan(appProperties.getProperty("duty.plan.csv"));
         String manOnDuty = appUtil.getDutyPerson(dutyPlan);
         String manOnDutyPhone = appProperties.getProperty("phone."+manOnDuty);
+
+        String manOnDutyNextWeek = appUtil.getDutyPersonNextweek(dutyPlan);
+        String manOnDutyPhoneNextWeek = appProperties.getProperty("phone."+manOnDutyNextWeek);
 
         Properties runtimeProperties = appUtil.readRuntimeProperties();
         long lastActionTS = runtimeProperties.getProperty(LAST_ACTION_TS) == null?
@@ -249,6 +253,10 @@ public class MainActivity extends AppCompatActivity {
         status.append("Current Week:").append(currentWeek).append("\n");
         status.append("Responder:").append(manOnDuty).append(("\n"));
         status.append("Tel:").append(manOnDutyPhone).append(("\n"));
+        status.append("-------------------").append("\n");
+        status.append("Next Week:").append(nextWeek).append("\n");
+        status.append("Responder:").append(manOnDutyNextWeek).append(("\n"));
+        status.append("Tel:").append(manOnDutyPhoneNextWeek).append(("\n"));
         status.append("-------------------").append("\n");
         status.append("Last Switching Time: ").append(actionTime).append("\n");
         status.append("Responder: ").append(lastActionPerson).append("\n");
