@@ -60,7 +60,7 @@ public class DutyPlanInspectorJob extends JobService {
     private void doMyJob(){
         // create a new appUtil object
         AppUtil appUtil = new AppUtil();
-        appUtil.commitAppLog("TimeWatchJob: Start to working");
+        appUtil.commitAppLog("TimeWatchJob is triggered!");
         appProperties = appUtil.getAppProperties(this);
 
         if (! isMondayMorning() ) {
@@ -72,7 +72,7 @@ public class DutyPlanInspectorJob extends JobService {
         appUtil.readDutyPlan(dutyPlan); // for debug only
 
         String manOnDuty = appUtil.getDutyPerson(dutyPlan);
-        Log.i(TAG,"Find Man on duty is " +  manOnDuty);
+        Log.i(TAG,"Get Man on duty of this week is: " +  manOnDuty);
         String manOnDutyPhone = appProperties.getProperty("phone."+manOnDuty);
 
         if ( manOnDuty == null || manOnDutyPhone == null ) {
