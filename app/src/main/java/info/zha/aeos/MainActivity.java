@@ -228,7 +228,6 @@ public class MainActivity extends AppCompatActivity {
                 appUtil.buildDutyPlan(appProperties.getProperty("duty.plan.csv"));
         String manOnDuty = appUtil.getDutyPerson(dutyPlan);
         String manOnDutyPhone = appProperties.getProperty("phone."+manOnDuty);
-        appUtil.viewDutyPlan(dutyPlan);
 
         Properties runtimeProperties = appUtil.readRuntimeProperties();
         long lastActionTS = runtimeProperties.getProperty(LAST_ACTION_TS) == null?
@@ -254,6 +253,8 @@ public class MainActivity extends AppCompatActivity {
         status.append("Last Switching Time: ").append(actionTime).append("\n");
         status.append("Responder: ").append(lastActionPerson).append("\n");
         status.append("Tel: ").append(lastActionNum).append("\n");
+        status.append("-------------------").append("\n");
+        status.append(appUtil.readDutyPlan(dutyPlan));
         return status;
     }
 

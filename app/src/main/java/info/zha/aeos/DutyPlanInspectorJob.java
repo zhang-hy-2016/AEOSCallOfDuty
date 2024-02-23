@@ -69,7 +69,7 @@ public class DutyPlanInspectorJob extends JobService {
         }
 
         Map<String, String> dutyPlan = appUtil.buildDutyPlan(appProperties.getProperty("duty.plan.csv"));
-        appUtil.viewDutyPlan(dutyPlan); // for debug only
+        appUtil.readDutyPlan(dutyPlan); // for debug only
 
         String manOnDuty = appUtil.getDutyPerson(dutyPlan);
         Log.i(TAG,"Find Man on duty is " +  manOnDuty);

@@ -154,7 +154,6 @@ public class AppUtil {
             return new HashMap<String, String>();
         }
 
-
         /*
           dutyPlan example:
           kw_1 - user1
@@ -178,7 +177,8 @@ public class AppUtil {
                     }
                     head_line = false;
                 } else {
-                    String user = record.get(0);
+                    // remove Non-Printable Non-ASCII character
+                    String user = record.get(0).replaceAll("[\\p{Cntrl}&&[^\\r\\n]]", "");
                     for (int i = 1; i < record.size(); i++ ) {
                         String v = record.get(i);
                         String week = "kw" + i;
@@ -197,15 +197,17 @@ public class AppUtil {
         return dutyPlan;
     }
 
-    public void viewDutyPlan(Map<String,String> dutyPlan){
+    public String readDutyPlan(Map<String,String> dutyPlan){
         SortedSet<String> keys = new TreeSet<String>(dutyPlan.keySet());
-
+        StringBuffer info = new StringBuffer();
         for (String week: keys) {
             Log.d(TAG, week + ":" +  dutyPlan.get(week));
+            info.append(week).append(":").append(dutyPlan.get(week)).append("\n");
         }
 
         String dutyPerson = getDutyPerson(dutyPlan);
         Log.d(TAG, "Man on Duty today = " + dutyPerson);
+        return info.toString();
     }
 
     /**
