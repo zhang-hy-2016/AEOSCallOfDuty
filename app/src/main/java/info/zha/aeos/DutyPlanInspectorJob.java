@@ -85,7 +85,7 @@ public class DutyPlanInspectorJob extends JobService {
                 appUtil.commitAppLog("Turn off call forwarding");
             }
         } else {
-            // Set call forwarding to duty person
+            // Setting Call Forwarding to Attendant
             if (turnOnCallForwarding(appUtil, manOnDuty, manOnDutyPhone)) {
                 Log.i(TAG,"Turn on call forwarding to " + manOnDuty + ":" + manOnDutyPhone);
                 appUtil.commitAppLog("Turn on call forwarding to " + manOnDuty + ":" + manOnDutyPhone);

@@ -25,6 +25,8 @@ import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+
+
 public class MyClass {
 
     public static void test1(){
@@ -56,9 +58,9 @@ public class MyClass {
 
     }
 
-    public static void test2() {
+    public static void buildDutyPlan() {
         //File aeos_plan = new File("E:\\099_Temp\\aeos_example.csv");
-        File aeos_plan = new File("c:\\workspace\\098_AndroidStudio_ws\\aeosrufnummer\\doc\\aeos_dutyplan.csv");
+        File aeos_plan = new File("C:\\Users\\zhang\\Downloads\\aeos-call\\aeos_dutyplan.csv");
 
         /*
           dutyPlan example:
@@ -70,15 +72,12 @@ public class MyClass {
         Map<String, String> dutyPlan = new HashMap<>();
         try {
             Reader in = new FileReader(aeos_plan);
-
             CSVFormat csvFormat =  CSVFormat.Builder.create(CSVFormat.EXCEL)
-                                    .setDelimiter(';')
-                                    .build();
-
+                    .setDelimiter(';')
+                    .build();
             Iterable<CSVRecord> records = csvFormat.parse(in);
             boolean head_line = true;
             for (CSVRecord record : records) {
-                int column_size = 0;
                 if (head_line){
                     for (int i = 1; i < record.size(); i++){
                         // create week index
@@ -86,7 +85,8 @@ public class MyClass {
                     }
                     head_line = false;
                 } else {
-                    String user = record.get(0);
+                    // remove Non-Printable Non-ASCII character
+                    String user = record.get(0).replaceAll("[\\p{Cntrl}&&[^\\r\\n]]", "");
                     for (int i = 1; i < record.size(); i++ ) {
                         String v = record.get(i);
                         String week = "kw" + i;
@@ -97,13 +97,11 @@ public class MyClass {
                     }
                 }
             }
-
-            // output
-            checkDutyPlan(dutyPlan);
-
         } catch (IOException e){
             e.printStackTrace();
         }
+
+        checkDutyPlan(dutyPlan);
 
     }
 
@@ -144,6 +142,18 @@ public class MyClass {
         System.out.println(now.getWeeksInWeekYear());       // don't use this method
         System.out.println(now.get(Calendar.WEEK_OF_YEAR));  // Correct week number
 
+    }
+
+    public static String getNextWeekIndex(){
+        // Setup Calender, kw1 = the first full week
+        Calendar now = GregorianCalendar.getInstance(Locale.GERMANY);
+        now.setFirstDayOfWeek(Calendar.MONDAY);
+        now.setMinimalDaysInFirstWeek(4); // 4 is ISO 8601 standard compatible setting
+        now.add(Calendar.WEEK_OF_YEAR,1);
+        String weekNum = "kw"+now.get(Calendar.WEEK_OF_YEAR);
+
+        System.out.println("Next week = " + weekNum);
+        return weekNum;
     }
 
     public static void propertiesTest() {
@@ -193,7 +203,9 @@ public class MyClass {
     public static void main(String[] args) {
         //test1();
         //test2();
-        propertiesTest();
+        //buildDutyPlan();
+        //propertiesTest();
+        getNextWeekIndex();
 
     }
 }
